@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "webpack --mode development --watch",
+    "build": "webpack --mode development",
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +22,7 @@
   "homepage": "https://github.com/liquidarkness564/crytpoAPI#readme",
   "dependencies": {
     "coingecko-api": "^1.0.10",
+    "express": "^4.17.1",
     "jquery-csv": "^1.0.21",
     "moment": "^2.29.1",
     "react": "^17.0.2",
@@ -29,6 +33,7 @@
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-react": "^7.16.0",
     "babel-loader": "^8.2.3",
+    "nodemon": "^2.0.15",
     "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1"
   }
