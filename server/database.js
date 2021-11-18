@@ -12,7 +12,7 @@ db.once('open', () => {
 const coinSchema = mongoose.Schema({
   coin: String,
   dateField: String,
-  isUnix: String,
+  isUnix: Boolean,
   amountField: String
 });
 
