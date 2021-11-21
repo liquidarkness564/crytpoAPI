@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const Coin = require('./database.js');
+const getGecko = require('../csvParse.js');
 
 app.use(express.static(__dirname + '/../client/dist'));
 
@@ -18,6 +19,12 @@ app.post('/crypto', async (req, res) => {
   await newCoin.save();
   res.statusCode = 201;
   res.end('201 Ok');
+})
+
+app.post('/crypto/gecko', async (req, res) => {
+  let coinInfo = await getGecko(req.body.data, req.body.curCoin);
+  res.statusCode = 200;
+  res.send(coinInfo);
 })
 
 app.listen(port, () => {
