@@ -1,12 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import csv from 'jquery-csv';
+import InfoList from './components/InfoList.jsx';
 
 const App = () => {
   const [hideAddCoin, setHideAddCoin] = useState(false);
 
   const [allCoins, setAllCoins] = useState([]);
   const [curCoin, setCurCoin] = useState({});
+
+  const [allInfo, setAllInfo] = useState([])
+  const [infoLoading, setInfoLoading] = useState(true);
 
   const [coinName, setCoinName] = useState('');
   const [dateFieldName, setDateFieldName] = useState('');
@@ -55,6 +59,7 @@ const App = () => {
   }
 
   const handleGetCoin = () => {
+    setInfoLoading(false);
     let file = document.getElementById('csvFile').files[0]
     let reader = new FileReader();
     if (file) { reader.readAsText(file); }
@@ -77,7 +82,11 @@ const App = () => {
             }
           }
           axios.post('/crypto/gecko', {curCoin: curCoin.coin, data})
-            .then(res => console.log(res.data))
+            .then(res => {
+              console.log(res.data);
+              setAllInfo(res.data);
+              setInfoLoading(true);
+            })
             .catch(err => console.log('failed to send coin data', err))
         }
       })
@@ -94,37 +103,42 @@ const App = () => {
   }
 
   return (
-    <div>
-      <h1>Crypto Csv Info</h1>
+    <div style={{display: 'flex'}}>
+      <div style={{marginRight: '3rem'}}>
+        <h1>Crypto Csv Info</h1>
+        <div>
+          <div style={{fontSize: '1.5rem', margin: '0 0 0.5rem 0.5rem'}}>
+            <label htmlFor='cryptoCoins' style={{marginRight: '3rem'}}>Select Crypto Coin</label>
+            <select onChange={(e) => handleGetCurrentCoin(e)} style={{fontSize: '1.5rem'}} name='cryptoCoins' id='cryptoCoins'>
+              {
+                allCoins.map(coin => <option value={coin.coin}>{coin.coin}</option>)
+              }
+            </select>
+          </div>
+          <div style={{fontSize: '1.5rem', margin: '0 0 0.5rem 0.5rem'}}>
+            <label htmlFor='csvFile' style={{marginRight: '1.7rem'}}>Select CSV file</label>
+            <input style={{fontSize: '1.5rem'}} type='file' id='csvFile' name='csvFile'></input>
+          </div>
+          <button onClick={handleGetCoin} style={{fontSize: '1.5rem', margin: '1.5rem 0 3rem 0.5rem'}}>Get Coin Info</button>
+          <button onClick={() => setHideAddCoin(true)} style={{display: 'block', fontSize: '1.5rem', margin: '1.5rem 0 1.5rem 0.5rem'}}>Add New Coin</button>
+          <div style={{display: hideAddCoin ? 'flex' : 'none', flexFlow: 'column nowrap', width: '25rem'}}>
+            <label style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0.5rem'}} htmlFor='nameField'>Name of Coin</label>
+            <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='nameField'></input>
+            <label style={{fontSize: '1.5rem', margin: '1.5rem 0 0.5rem 0.5rem'}} htmlFor='dateField'>Name of Date Field</label>
+            <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='dateField'></input>
+            <label htmlFor='isUnix' style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0'}}>Is This a Unix Date Field</label>
+            <select onChange={handleInputChange} style={{width: '40%', fontSize: '1.4rem', margin: '0 0 2rem 0'}} name='isUnix' id='isUnix'>
+              <option value='no'>No</option>
+              <option value='yes'>Yes</option>
+            </select>
+            <label style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0.5rem'}} htmlFor='amountField'>Name of Coin Amount Field</label>
+            <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='amountField'></input>
+            <button onClick={() => handleSubmitCoin(coinName, dateFieldName, isUnixField, coinAmountFieldName)} style={{width: '60%', fontSize: '1.5rem', margin: '3rem 0 0.5rem 0.5rem'}}>Submit New Coin</button>
+          </div>
+        </div>
+      </div>
       <div>
-        <div style={{fontSize: '1.5rem', margin: '0 0 0.5rem 0.5rem'}}>
-          <label htmlFor='cryptoCoins' style={{marginRight: '3rem'}}>Select Crypto Coin</label>
-          <select onChange={(e) => handleGetCurrentCoin(e)} style={{fontSize: '1.5rem'}} name='cryptoCoins' id='cryptoCoins'>
-            {
-              allCoins.map(coin => <option value={coin.coin}>{coin.coin}</option>)
-            }
-          </select>
-        </div>
-        <div style={{fontSize: '1.5rem', margin: '0 0 0.5rem 0.5rem'}}>
-          <label htmlFor='csvFile' style={{marginRight: '1.7rem'}}>Select CSV file</label>
-          <input style={{fontSize: '1.5rem'}} type='file' id='csvFile' name='csvFile'></input>
-        </div>
-        <button onClick={handleGetCoin} style={{fontSize: '1.5rem', margin: '1.5rem 0 3rem 0.5rem'}}>Get Coin Info</button>
-        <button onClick={() => setHideAddCoin(true)} style={{display: 'block', fontSize: '1.5rem', margin: '1.5rem 0 1.5rem 0.5rem'}}>Add New Coin</button>
-        <div style={{display: hideAddCoin ? 'flex' : 'none', flexFlow: 'column nowrap', width: '25rem'}}>
-          <label style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0.5rem'}} htmlFor='nameField'>Name of Coin</label>
-          <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='nameField'></input>
-          <label style={{fontSize: '1.5rem', margin: '1.5rem 0 0.5rem 0.5rem'}} htmlFor='dateField'>Name of Date Field</label>
-          <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='dateField'></input>
-          <label htmlFor='isUnix' style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0'}}>Is This a Unix Date Field</label>
-          <select onChange={handleInputChange} style={{width: '40%', fontSize: '1.4rem', margin: '0 0 2rem 0'}} name='isUnix' id='isUnix'>
-            <option value='no'>No</option>
-            <option value='yes'>Yes</option>
-          </select>
-          <label style={{fontSize: '1.5rem', margin: '0.5rem 0 0.5rem 0.5rem'}} htmlFor='amountField'>Name of Coin Amount Field</label>
-          <input style={{fontSize: '1.5rem'}} onChange={handleInputChange} type='text' id='amountField'></input>
-          <button onClick={() => handleSubmitCoin(coinName, dateFieldName, isUnixField, coinAmountFieldName)} style={{width: '60%', fontSize: '1.5rem', margin: '3rem 0 0.5rem 0.5rem'}}>Submit New Coin</button>
-        </div>
+        <InfoList allInfo={allInfo} coin={curCoin.coin} isLoading={infoLoading}/>
       </div>
     </div>
   )
