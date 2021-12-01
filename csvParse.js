@@ -4,6 +4,8 @@ const moment = require('moment');
 
 // .format('MM-DD-YYYY')
 
+// add section for modifying date properties into acceptable date formats
+
 module.exports = async (data, curCoin) => {
   const info = [];
   for (let coin of data) {
